@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@theme {
+  --font-display: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-primary: var(--theme-primary);
+  --color-primary-dark: var(--theme-primary-dark);
+  --color-background-dark: var(--theme-bg);
+  --color-surface-dark: var(--theme-surface);
+  --color-border-dark: var(--theme-border);
+  --color-border-hover: var(--theme-border-hover);
+  --color-text-muted: var(--theme-text-muted);
+  --color-accent-red: #ef4444;
+}
+
+:root {
+  /* Default Emerald Theme */
+  --theme-primary: #10b77f;
+  --theme-primary-dark: #059669;
+  --theme-bg: #11221c;
+  --theme-surface: #19332b;
+  --theme-border: #23483c;
+  --theme-border-hover: #326755;
+  --theme-text-muted: #92c9b7;
+}
+
+.theme-emerald {
+  --theme-primary: #10b77f;
+  --theme-primary-dark: #059669;
+  --theme-bg: #11221c;
+  --theme-surface: #19332b;
+  --theme-border: #23483c;
+  --theme-border-hover: #326755;
+  --theme-text-muted: #92c9b7;
+}
+
+.theme-blue {
+  --theme-primary: #3b82f6;
+  --theme-primary-dark: #2563eb;
+  --theme-bg: #0f172a;
+  --theme-surface: #1e293b;
+  --theme-border: #334155;
+  --theme-border-hover: #475569;
+  --theme-text-muted: #94a3b8;
+}
+
+.theme-purple {
+  --theme-primary: #a855f7;
+  --theme-primary-dark: #9333ea;
+  --theme-bg: #171026;
+  --theme-surface: #261a3d;
+  --theme-border: #3d2a60;
+  --theme-border-hover: #553b86;
+  --theme-text-muted: #b095d4;
+}
+
+.theme-rose {
+  --theme-primary: #f43f5e;
+  --theme-primary-dark: #e11d48;
+  --theme-bg: #2a0f15;
+  --theme-surface: #3f1620;
+  --theme-border: #5c2130;
+  --theme-border-hover: #802e43;
+  --theme-text-muted: #d495a5;
+}
+
+@layer base {
+  body {
+    @apply bg-background-dark text-white font-display antialiased selection:bg-primary selection:text-white;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+  .font-mono-numbers {
+    font-feature-settings: "tnum" on, "lnum" on;
+  }
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--theme-border-hover);
+  border-radius: 4px;
+}

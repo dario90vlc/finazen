@@ -1,0 +1,5 @@
+{
+  "name": "FinanZen",
+  "description": "A fully functional personal finance dashboard with income/expense tracking, categorization, and real-time database.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the finance app",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The user's display name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the user was created"
+        }
+      },
+      "required": ["name", "email", "createdAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A financial transaction (income or expense)",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who owns this transaction"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount of the transaction (positive value)"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["income", "expense"],
+          "description": "Whether this is an income or an expense"
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the transaction (e.g., Vivienda, Comida, Ocio, Nómina)"
+        },
+        "title": {
+          "type": "string",
+          "description": "A short description or title for the transaction"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The date of the transaction"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the transaction was recorded"
+        }
+      },
+      "required": ["userId", "amount", "type", "category", "title", "date", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores user profiles"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Stores all user transactions"
+    }
+  }
+}

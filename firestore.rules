@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - name: string (required, max 100 chars)
+    //   - email: string (required, email format)
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // Collection: transactions
+    // Document ID: {transactionId}
+    // Fields:
+    //   - userId: string (required, immutable, must match auth.uid)
+    //   - amount: number (required, positive)
+    //   - type: string (required, 'income' or 'expense')
+    //   - category: string (required, max 50 chars)
+    //   - title: string (required, max 100 chars)
+    //   - date: timestamp (required)
+    //   - createdAt: timestamp (required, immutable)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function uidUnchanged() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId;
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isPositive(field) {
+      return request.resource.data[field] is number && request.resource.data[field] >= 0;
+    }
+
+    // Domain Validators
+    function isValidUser() {
+      return hasOnlyAllowedFields(['name', 'email', 'createdAt']) &&
+             validStringLength('name', 1, 100) &&
+             isValidEmail(request.resource.data.email) &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    function isValidTransaction() {
+      return hasOnlyAllowedFields(['userId', 'amount', 'type', 'category', 'title', 'date', 'createdAt']) &&
+             request.resource.data.userId == request.auth.uid &&
+             isPositive('amount') &&
+             request.resource.data.type in ['income', 'expense'] &&
+             validStringLength('category', 1, 50) &&
+             validStringLength('title', 1, 100) &&
+             request.resource.data.date is timestamp &&
+             request.resource.data.createdAt is timestamp;
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser();
+      allow update: if isOwner(userId) && isValidUser() && 
+                    request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false; // Users shouldn't be deleted directly from client
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidTransaction() && uidUnchanged();
+      allow update: if isDocOwner() && isValidTransaction() && uidNotModified() &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isDocOwner();
+    }
+  }
+}
